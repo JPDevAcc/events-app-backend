@@ -16,3 +16,16 @@ export async function remove(req, res) {
 		res.status(404).send({message: "Event not found"})
 	}
 }
+
+export async function add(req, res) {
+    
+    const newEvent = req.body;
+    const event = new Event(newEvent);
+    await event.save();
+    res.send({ message: "New event inserted." });
+}
+
+export async function update(req, res){
+    await Event.findOneAndUpdate({ _id:req.params.id }, req.body);
+    res.send({ message: "Event updated." });
+  };
