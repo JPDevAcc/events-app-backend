@@ -2,9 +2,9 @@ import express from "express";
 import * as events from "./eventsController.mjs"
 const router = express.Router() ;
 
-// Routes
+// Routes || TODO: CHECK THESE WORK ON RENDER
 router.get("/", events.index) ; // Get all events
-router.delete("/delete", events.remove) ; // Remove event by id
-router.post("/add" , events.add) ; // Add new event
-router.put("/put", events.update) ; // Update event by id
+router.post("/" , events.add) ; // Add new event
+router.delete("/:id", events.remove) ; // Remove event by id
+router.put("/:id", events.update) ; // Update event by id
 export default router ;
