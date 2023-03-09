@@ -10,7 +10,7 @@ export async function authenticate(req, res) {
 	}
 	else {
 		// Get secure random token
-		const token = crypto.randomInt(1, 1000000000).toString() ;
+		const token = crypto.randomBytes(16).toString('base64'); // (16 * 8 = 128 bits)
 
 		// Set token for user in database
     user.token = token ;
@@ -23,20 +23,19 @@ export async function authenticate(req, res) {
 
 // Authorization
 export async function authCheck(req, res, next) {
-	// Get token from headers
-	const token = req.headers["token"] ;
+	let ok = false ;
 
-	 // TODO: !!!!! REMOVE THIS IN PRODUCTION !!!!!
-	if (token === 'secret_bypass') {
-		next() ;
-		return ;
+	const token = req.headers["token"] ; // Get token from headers
+
+	// TODO: !!!!! REMOVE THIS IN PRODUCTION !!!!!
+	if (token === 'secret_bypass') ok = true ;
+	
+	// Ensure token isn't null and is in the database
+	if (token) {
+		const user = await User.findOne({token}) ;
+		if (user) ok = true ;
 	}
 
-	// Get token from database
-	const user = await User.findOne({token}) ;
-
-	if (user) next() ; // (token okay so continue processing)
-	else {
-		res.status(403).send() ; // (no matching record for this token so return error)
-	}
-} ;
+	if (ok) next() // (token okay so continue processing)
+	else res.status(403).send() ; // (no matching record for this token so return error)
+}

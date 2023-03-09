@@ -33,7 +33,7 @@ db.on('error', console.error.bind(console, 'connection error:')) ; // Log connec
 db.once('open', () => console.log("Database connected")) ; // Open the connection
 
 // Listen for connections
-const port = process.env.PORT || 3000 ;
+const port = process.env.PORT || 3005 ;
 app.listen(port, () => {
 	console.log(`My app is listening on port: ${port}`) ;
  }) ;
