@@ -3,6 +3,7 @@ import express from "express";
 import router from "./router.mjs" ;
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from 'cookie-parser';
 import { authenticate, authCheck } from "./authController.mjs";
 
 // Init dotenv
@@ -10,9 +11,18 @@ config() ;
 
 // Express setup + middleware stack
 const app = express() ;
-app.use(cors()) ;
+
+// CORS
+const corsOptions = {
+  origin: true,
+  credentials: true
+};
+app.use(cors(corsOptions));
+
+// Other middleware
 app.use(express.json()) ;
 app.use(express.urlencoded({ extended: false })) ;
+app.use(cookieParser()) ;
 
  // Authentication and authorization-check
 app.post("/auth", authenticate) ;
