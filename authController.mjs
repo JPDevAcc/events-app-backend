@@ -9,33 +9,56 @@ export async function authenticate(req, res) {
 		res.status(401).send({message: "Invalid username / password"})
 	}
 	else {
-		// Get secure random token
+		// Get secure random tokens
 		const token = crypto.randomBytes(16).toString('base64'); // (16 * 8 = 128 bits)
+		const cookieToken = crypto.randomBytes(16).toString('base64');
 
-		// Set token for user in database
+		// Set tokens for user in database
     user.token = token ;
+		user.cookieToken = cookieToken ;
     await user.save() ;
 
-		// Respond with the token for the client
+		// Set cookie
+    const options = {
+      maxAge: 1000 * 60 * 30, // 30 mins
+      httpOnly: true, // No JS access
+    }
+    res.cookie('cookieToken', cookieToken, options)
+
+		// Respond with the token (and the cookie)
 		res.send({token}) ;
 	}
 }
 
 // Authorization
 export async function authCheck(req, res, next) {
-	let ok = false ;
-
 	const token = req.headers["token"] ; // Get token from headers
+	const cookieToken = req.cookies.cookieToken ; // Get second token from cookie
 
 	// TODO: !!!!! REMOVE THIS IN PRODUCTION !!!!!
-	if (token === 'secret_bypass') ok = true ;
+	if (token === 'secret_bypass') {
+		res.status(403).send() ;
+		return ;
+	}
 	
-	// Ensure token isn't null and is in the database
-	if (token) {
+	let ok = true ;
+
+	// Ensure token isn't null
+	if (!token) ok = false ;
+	// Ensure token matches a user in the database
+	if (ok)	{
 		const user = await User.findOne({token}) ;
-		if (user) ok = true ;
+		if (!user) ok = false ;
 	}
 
-	if (ok) next() // (token okay so continue processing)
-	else res.status(403).send() ; // (no matching record for this token so return error)
+	// Ensure cookie isn't null
+	if (!cookieToken) ok = false ;
+	// Ensure cookie matches a user in the database
+	if (ok)	{
+		const user = await User.findOne({cookieToken}) ;
+		if (!user) ok = false ;
+	}
+
+	if (ok) next() // (tokens okay so continue processing)
+	else res.status(403).send() ; // (auth failed so respond with error)
 }
