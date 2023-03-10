@@ -36,12 +36,6 @@ export async function authCheck(req, res, next) {
 	const token = req.headers["token"] ; // Get token from headers
 	const cookieToken = req.cookies.cookieToken ; // Get second token from cookie
 
-	// TODO: !!!!! REMOVE THIS IN PRODUCTION !!!!!
-	if (token === 'secret_bypass') {
-		next() ;
-		return ;
-	}
-	
 	let ok = true ;
 
 	// Ensure token isn't null
