@@ -1,11 +1,12 @@
 import User from './models/user.mjs';
 import crypto from "crypto" ;
+import bcrypt from "bcryptjs";
 
 // Authentication
-export async function authenticate(req, res) {
+export async function authenticate(req, res) {	
 	const user = await User.findOne({username: req.body.username}) ;
 	if (!user) res.status(401).send({message: "Invalid username / password"})
-	else if (user.password !== req.body.password) {
+	else if (!bcrypt.compareSync(req.body.password, user.password)) {
 		res.status(401).send({message: "Invalid username / password"})
 	}
 	else {
@@ -37,7 +38,7 @@ export async function authCheck(req, res, next) {
 
 	// TODO: !!!!! REMOVE THIS IN PRODUCTION !!!!!
 	if (token === 'secret_bypass') {
-		res.status(403).send() ;
+		next() ;
 		return ;
 	}
 	
