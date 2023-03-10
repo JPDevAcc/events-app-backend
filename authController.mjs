@@ -52,7 +52,7 @@ export async function authCheck(req, res, next) {
 	if (!cookieToken) ok = false ;
 	// Ensure cookie matches a user in the database
 	if (ok)	{
-		const user = await User.findOne({cookieToken}) ;
+		const user = await User.findOne({cookieToken}) ; // (could alternatively just compare with user.cookieToken from above if assuming no duplicates)
 		if (!user) ok = false ;
 	}
 
