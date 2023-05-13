@@ -22,7 +22,6 @@ export async function authenticate(req, res) {
 
 		// Set cookie
     const options = {
-      maxAge: 1000 * 60 * 30, // 30 mins
       httpOnly: true, // No JS access
 			secure: true,
 			sameSite: 'none'

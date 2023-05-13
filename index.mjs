@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import { authenticate, authCheck } from "./authController.mjs";
 import copyCollections from "./copyCollections.mjs";
+import crypto from "crypto" ;
 
 // Init dotenv
 config() ;
@@ -25,9 +26,20 @@ app.use(express.json()) ;
 app.use(express.urlencoded({ extended: false })) ;
 app.use(cookieParser()) ;
 
+// Outer session for database isolation
+// Note: We use this rather than IP address as it's a bit more reliable
+// TODO: Add some kind of IP-based throttling as well?
 app.use(async (req, res, next) => {
-	console.log("Request IP: ", req.ip) ;
-	global.userCollectionsPrefix = req.ip ;
+	if (req.cookies.outerSession) global.userCollectionsPrefix = req.cookies.outerSession ;
+	else {
+		global.userCollectionsPrefix = crypto.randomBytes(16).toString('base64');
+		 const options = {
+      httpOnly: true, // No JS access
+			secure: true,
+			sameSite: 'none'
+    }
+		res.cookie('outerSession', global.userCollectionsPrefix, options)
+	}
 	await copyCollections() ;
 	next() ;
 }) ;
