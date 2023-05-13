@@ -1,7 +1,9 @@
-import Event from './models/event.mjs';
+import getEventModel from './models/event.mjs';
 
 // Retrieve all events
 export async function index(req, res) {
+	const Event = getEventModel() ;
+
 	try {
     const events = await Event.find() ;
     res.send(events) ;
@@ -13,6 +15,8 @@ export async function index(req, res) {
 
 // Remove event by id
 export async function remove(req, res) {
+	const Event = getEventModel() ;
+
 	try {
   	const event = await Event.findByIdAndRemove(req.params.id) ;
 		if (event) res.send({ message: "Event removed" }) ;
@@ -25,6 +29,8 @@ export async function remove(req, res) {
 
 // Add event
 export async function add(req, res) {
+	const Event = getEventModel() ;
+
 	if (!ensurePresent(req.body, ['title', 'location', 'date', 'duration', 'durationUnits', 'description', 'picture'])) {
 		res.status(400).send({message: "Bad request"})
 		return ;
@@ -37,6 +43,8 @@ export async function add(req, res) {
 
 // Update an event (all fields)
 export async function update(req, res) {
+	const Event = getEventModel() ;
+
 	if (!ensurePresent(req.body, ['title', 'location', 'date', 'duration', 'durationUnits', 'description', 'picture'])) {
 		res.status(400).send({message: "Bad request"})
 		return ;

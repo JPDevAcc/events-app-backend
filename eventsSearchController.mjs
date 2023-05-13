@@ -1,11 +1,13 @@
 // General search function (extended from booklist frontend)
 
 import createError from 'http-errors' ;
-import Record from './models/event.mjs';
+import getEventModel from './models/event.mjs';
 
 // Return matching entries according to given criteria
 /* URL format: /[or|and]?f1=fieldName1&s1=searchValue1&f2=fieldName2&s2=searchValue2... */
 export async function findRecordsBy(req, res, next) {
+	const Record = getEventModel() ;
+
 	// Get just the query values (i.e. only the order matters, not the parameter names themselves)
 	const queryValues = Object.values(req.query) ;
 
