@@ -34,9 +34,16 @@ export default async function copyCollections() {
 		await CollectionCopyPrefixModel.create({prefix: global.userCollectionsPrefix + '_'}) ;
 	}
 	else {
-		// Remove expired copies
-		const threshold = new Date().getTime() - (60 * 60 * 24 * 1000) ; // (1 day expiry)
-		const collectionCopyPrefixes = await CollectionCopyPrefixModel.find({timestamp: {$lt: threshold}}) ;
+		if (Math.random() > 0.1) return ; // (no need to do this check every time)
+		console.log("(checking for expired collection copies)") ;
+
+		// Get list of prefixes for expired copies
+		let collectionCopyPrefixes = await CollectionCopyPrefixModel.find() ;
+		const expiryHours = (collectionCopyPrefixes.length < 10) ? 24 : 1 ; // 24 or 1 hour depending on how many we currently have
+		const threshold = new Date().getTime() - (expiryHours * 60 * 60 * 1000) ;
+		collectionCopyPrefixes = await CollectionCopyPrefixModel.find({timestamp: {$lt: threshold}}) ;
+
+		// Remove them		
 		for (const {prefix} of collectionCopyPrefixes) {
 			for (const [schemaName, schema] of collectionsSchema) {
 				const schemaCopyName = prefix + schemaName ;
