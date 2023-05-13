@@ -7,5 +7,7 @@ const userSchema = Schema({
 	cookieToken: String
 })
 
-const User = model('User', userSchema) ;
-export default User ;
+export { userSchema };
+
+const getModel = () => model(global.userCollectionsPrefix + '_User', userSchema) ;
+export default getModel ;

@@ -5,6 +5,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import { authenticate, authCheck } from "./authController.mjs";
+import copyCollections from "./copyCollections.mjs";
 
 // Init dotenv
 config() ;
@@ -23,6 +24,13 @@ app.use(cors(corsOptions));
 app.use(express.json()) ;
 app.use(express.urlencoded({ extended: false })) ;
 app.use(cookieParser()) ;
+
+app.use(async (req, res, next) => {
+	console.log("Request IP: ", req.ip) ;
+	global.userCollectionsPrefix = req.ip ;
+	await copyCollections() ;
+	next() ;
+}) ;
 
  // Authentication and authorization-check
 app.post("/auth", authenticate) ;

@@ -1,9 +1,10 @@
-import User from './models/user.mjs';
+import getUserModel from './models/user.mjs';
 import crypto from "crypto" ;
 import bcrypt from "bcryptjs";
 
 // Authentication
-export async function authenticate(req, res) {	
+export async function authenticate(req, res) {
+	const User = getUserModel() ;
 	const user = await User.findOne({username: req.body.username}) ;
 	if (!user) res.status(401).send({message: "Invalid username / password"})
 	else if (!bcrypt.compareSync(req.body.password, user.password)) {
@@ -35,6 +36,7 @@ export async function authenticate(req, res) {
 
 // Authorization
 export async function authCheck(req, res, next) {
+	const User = getUserModel() ;
 	const token = req.headers["token"] ; // Get token from headers
 	const cookieToken = req.cookies.cookieToken ; // Get second token from cookie
 
