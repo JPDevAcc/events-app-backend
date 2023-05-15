@@ -1,8 +1,10 @@
 import { model } from 'mongoose';
-import CollectionCopyPrefixModel from './models/collectionCopies.mjs';
-import { userSchema } from './models/user.mjs';
-import { eventSchema } from './models/event.mjs';
-import { MONGO_ERR_DUPLICATE_KEY } from "./utils/errcodes.mjs";
+import CollectionCopyPrefixModel from '../models/collectionCopies.mjs';
+import { MONGO_ERR_DUPLICATE_KEY } from "./errcodes.mjs";
+
+// Full list of collections
+import { userSchema } from '../models/user.mjs';
+import { eventSchema } from '../models/event.mjs';
 
 const collectionsSchema = [
 	['user', userSchema],
@@ -10,7 +12,7 @@ const collectionsSchema = [
 ] ;
 
 export default async function copyCollections() {
-	const collectionCopyPrefix = global.userCollectionsPrefix + '_' ;
+	const collectionCopyPrefix = global.userCollectionsPrefix ;
 	const alreadyCopied = !!(await CollectionCopyPrefixModel.findOne({prefix: collectionCopyPrefix})) ;
 
 	if (!alreadyCopied) {
@@ -31,7 +33,7 @@ export default async function copyCollections() {
 			}
 		}
 
-		await CollectionCopyPrefixModel.create({prefix: global.userCollectionsPrefix + '_'}) ;
+		await CollectionCopyPrefixModel.create({prefix: global.userCollectionsPrefix}) ;
 	}
 	else {
 		if (Math.random() > 0.1) return ; // (no need to do this check every time)

@@ -5,8 +5,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
 import { authenticate, authCheck } from "./authController.mjs";
-import copyCollections from "./copyCollections.mjs";
-import crypto from "crypto" ;
+import databaseIsolation from "./databaseIsolation.mjs";
 
 // Init dotenv
 config() ;
@@ -26,23 +25,10 @@ app.use(express.json()) ;
 app.use(express.urlencoded({ extended: false })) ;
 app.use(cookieParser()) ;
 
-// Outer session for database isolation
-// Note: We use this rather than IP address as it's a bit more reliable
-// TODO: Add some kind of IP-based throttling as well?
-app.use(async (req, res, next) => {
-	if (req.cookies.outerSession) global.userCollectionsPrefix = req.cookies.outerSession ;
-	else {
-		global.userCollectionsPrefix = crypto.randomBytes(16).toString('base64');
-		 const options = {
-      httpOnly: true, // No JS access
-			secure: true,
-			sameSite: 'none'
-    }
-		res.cookie('outerSession', global.userCollectionsPrefix, options)
-	}
-	await copyCollections() ;
-	next() ;
-}) ;
+// Database collection isolation
+if (process.env.ENABLE_DB_ISOLATION === 'true') app.use(databaseIsolation) ;
+else global.userCollectionsPrefix = '' ;
+console.log("Database collection isolation is:", (process.env.ENABLE_DB_ISOLATION === 'true') ? 'ENABLED' : 'DISABLED') ;
 
  // Authentication and authorization-check
 app.post("/auth", authenticate) ;
