@@ -9,5 +9,5 @@ const userSchema = Schema({
 
 export { userSchema };
 
-const getModel = () => model(global.userCollectionsPrefix + '_User', userSchema) ;
+const getModel = () => model(global.userCollectionsPrefix + 'User', userSchema) ;
 export default getModel ;
