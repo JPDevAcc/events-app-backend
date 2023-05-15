@@ -12,5 +12,5 @@ const eventSchema = Schema({
 
 export { eventSchema };
 
-const getModel = () => model(global.userCollectionsPrefix + '_Event', eventSchema) ;
+const getModel = () => model(global.userCollectionsPrefix + 'Event', eventSchema) ;
 export default getModel ;
